@@ -1,0 +1,26 @@
+{
+  "global_performance": {
+    "mae_v21": 4.2,
+    "mae_v22": 3.2,
+    "improvement_pct": 23.8,
+    "interval_accuracy_pct": 76.7,
+    "total_prospects": 30
+  },
+  "segment_performance": {
+    "lottery": {
+      "mae_v21": 1.57,
+      "mae_v22": 1.14,
+      "improvement_pct": 27.3,
+      "prospects_count": 14
+    },
+    "late_first": {
+      "mae_v21": 6.5,
+      "mae_v22": 5.0,
+      "improvement_pct": 23.1,
+      "prospects_count": 16
+    }
+  },
+  "outliers_analysis": {
+    "lottery": {
+      "threshold": 5,
+      "v21_count": 
