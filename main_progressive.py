@@ -1,6 +1,3 @@
-# main_progressive.py
-"""Application principale avec refactorisation progressive"""
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -42,18 +39,17 @@ def main():
         "🔍 Enhanced Search", 
         "🎯 Live Big Board",  
         "🎯 Team Fit",       
-        "💎 Steals & Busts", 
-        "📈 Projections",    
-        "📊 Historical",
-        "🧠 ML Analytics"
+        "💎 Steals & Busts",
+        "📈 Projections",   
+        "   Historical Intelligence", 
+        "🤖 ML Analytics" 
     ])
     
-    # MODULES REFACTORISÉS ✅
     with tabs[0]:  # Dashboard
         try:
             from pages.dashboard import show
             show(df)
-           
+            st.success("✅ Dashboard: Module refactorisé avec composants")
         except Exception as e:
             st.error(f"Dashboard error: {e}")
             fallback_dashboard(df)
@@ -62,7 +58,7 @@ def main():
         try:
             from pages.comparisons import show
             show(df)
-   
+           
         except Exception as e:
             st.error(f"Comparisons error: {e}")
             fallback_comparison(df)
@@ -80,7 +76,7 @@ def main():
         try:
             from pages.live_board import show
             show(df)
-            
+          
         except Exception as e:
             st.error(f"Live Big Board error: {e}")
             fallback_big_board(df)
@@ -89,17 +85,16 @@ def main():
         try:
             from pages.team_fit import show
             show(df)
-       
+    
         except Exception as e:
             st.error(f"Team Fit error: {e}")
             fallback_team_fit(df)
     
-    # PHASES SUIVANTES: Modules refactorisés
     with tabs[5]:  # Steals & Busts
         try:
             from pages.steals_busts import show
             show(df)
-        
+      
         except Exception as e:
             st.error(f"Steals & Busts error: {e}")
             fallback_steals_busts(df)
@@ -108,7 +103,7 @@ def main():
         try:
             from pages.projections import show
             show(df)
-           
+
         except Exception as e:
             st.error(f"Projections error: {e}")
             fallback_projections(df)
@@ -117,11 +112,12 @@ def main():
         try:
             from pages.historical import show
             show(df)
-            
+
         except Exception as e:
             st.error(f"Historical Intelligence error: {e}")
             fallback_historical(df)
-    with tabs[8]:  # ML Analytics
+
+    with tabs[8]: # ml_analytics
             from pages.ml_analytics import show
             show(df)
     
