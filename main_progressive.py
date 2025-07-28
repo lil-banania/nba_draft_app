@@ -37,14 +37,15 @@ def main():
     
     # Navigation avec modules refactorisés
     tabs = st.tabs([
-        "🏠 Dashboard",      # ✅ Module refactorisé
-        "📊 Compare Players", # ✅ Module refactorisé
-        "🔍 Enhanced Search", # ✅ Module refactorisé
-        "🎯 Live Big Board",  # ✅ Module refactorisé
-        "🎯 Team Fit",       # ✅ Module refactorisé
-        "💎 Steals & Busts", # 🔄 Prochaine étape
-        "📈 Projections",    # 🔄 À refactoriser
-        "📊 Historical"      # 🔄 À refactoriser
+        "🏠 Dashboard",      
+        "📊 Compare Players", 
+        "🔍 Enhanced Search", 
+        "🎯 Live Big Board",  
+        "🎯 Team Fit",       
+        "💎 Steals & Busts", 
+        "📈 Projections",    
+        "📊 Historical",
+        "🧠 ML Analytics"
     ])
     
     # MODULES REFACTORISÉS ✅
@@ -52,7 +53,7 @@ def main():
         try:
             from pages.dashboard import show
             show(df)
-            st.success("✅ Dashboard: Module refactorisé avec composants")
+           
         except Exception as e:
             st.error(f"Dashboard error: {e}")
             fallback_dashboard(df)
@@ -61,7 +62,7 @@ def main():
         try:
             from pages.comparisons import show
             show(df)
-            st.success("✅ Comparisons: Module refactorisé avec radar charts")
+   
         except Exception as e:
             st.error(f"Comparisons error: {e}")
             fallback_comparison(df)
@@ -70,7 +71,7 @@ def main():
         try:
             from pages.search import show
             show(df)
-            st.success("✅ Search: Module refactorisé avec filtres avancés")
+    
         except Exception as e:
             st.error(f"Search error: {e}")
             fallback_search(df)
@@ -79,7 +80,7 @@ def main():
         try:
             from pages.live_board import show
             show(df)
-            st.success("✅ Live Big Board: Module refactorisé avec intel")
+            
         except Exception as e:
             st.error(f"Live Big Board error: {e}")
             fallback_big_board(df)
@@ -88,7 +89,7 @@ def main():
         try:
             from pages.team_fit import show
             show(df)
-            st.success("✅ Team Fit: Module refactorisé avec matrices")
+       
         except Exception as e:
             st.error(f"Team Fit error: {e}")
             fallback_team_fit(df)
@@ -98,7 +99,7 @@ def main():
         try:
             from pages.steals_busts import show
             show(df)
-            st.success("✅ Steals & Busts: Module refactorisé avec analyse prédictive")
+        
         except Exception as e:
             st.error(f"Steals & Busts error: {e}")
             fallback_steals_busts(df)
@@ -107,7 +108,7 @@ def main():
         try:
             from pages.projections import show
             show(df)
-            st.success("✅ 5-Year Projections: Module refactorisé avec courbes de développement")
+           
         except Exception as e:
             st.error(f"Projections error: {e}")
             fallback_projections(df)
@@ -116,10 +117,13 @@ def main():
         try:
             from pages.historical import show
             show(df)
-            st.success("✅ Historical Intelligence: Module refactorisé avec 6 sous-modules")
+            
         except Exception as e:
             st.error(f"Historical Intelligence error: {e}")
             fallback_historical(df)
+    with tabs[8]:  # ML Analytics
+    from pages.ml_analytics import show
+    show(df)
     
     # Footer
     display_footer()
