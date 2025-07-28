@@ -122,8 +122,8 @@ def main():
             st.error(f"Historical Intelligence error: {e}")
             fallback_historical(df)
     with tabs[8]:  # ML Analytics
-    from pages.ml_analytics import show
-    show(df)
+            from pages.ml_analytics import show
+            show(df)
     
     # Footer
     display_footer()
