@@ -11,6 +11,7 @@ def load_data() -> pd.DataFrame:
     try:
         # Try loading from multiple possible sources
         filenames = [
+            'nba_prospects_2025.csv',
             'complete_nba_draft_rankings.csv', 
             'final_nba_draft_rankings.csv', 
             'ml_nba_draft_predictions.csv'
