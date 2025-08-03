@@ -561,7 +561,6 @@ def display_production_readiness():
         st.write("• Reproducible results")
         st.write("• Business objectives exceeded")
         
-        st.balloons()  # Celebration!
     
     # Final production recommendation
     st.markdown("#### 🎯 Production Recommendation")
