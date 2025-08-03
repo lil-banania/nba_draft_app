@@ -1,5 +1,5 @@
 # data/loader.py
-"""Chargement des données - Version simplifiée"""
+"""Chargement des données """
 
 import streamlit as st
 import pandas as pd
@@ -19,7 +19,6 @@ def load_data() -> pd.DataFrame:
         for filename in filenames:
             try:
                 df = pd.read_csv(filename)
-                st.success(f"✅ Data loaded from {filename}")
                 return clean_dataframe(df)
             except FileNotFoundError:
                 continue
