@@ -19,7 +19,7 @@ APP_CONFIG = {
     'title': "🏀 NBA Draft 2025 AI",
     'subtitle': "AI-Powered Prospect Analysis & Draft Simulator",
     'version': "2.0",
-    'author': "NBA Draft Intelligence"
+    'author': "Kevin Begranger"
 }
 
 # Métriques d'affichage
