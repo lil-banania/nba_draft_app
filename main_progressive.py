@@ -38,13 +38,14 @@ def main():
     # Navigation avec modules refactorisés
     tabs = st.tabs([
         "🏠 Dashboard",      # ✅ Module refactorisé
-        "📊 Compare Players", # ✅ Module refactorisé
-        "🔍 Enhanced Search", # ✅ Module refactorisé
-        "🎯 Live Big Board",  # ✅ Module refactorisé
-        "🎯 Team Fit",       # ✅ Module refactorisé
-        "💎 Steals & Busts", # 🔄 Prochaine étape
-        "📈 Projections",    # 🔄 À refactoriser
-        "📊 Historical"      # 🔄 À refactoriser
+        "📊 Compare Players", 
+        "🔍 Enhanced Search", 
+        "🎯 Live Big Board",  
+        "🎯 Team Fit",       
+        "💎 Steals & Busts", 
+        "📈 Projections",   
+        "📊 Historical",      
+        " ML Analytics"
     ])
     
     # MODULES REFACTORISÉS ✅
@@ -120,6 +121,15 @@ def main():
         except Exception as e:
             st.error(f"Historical Intelligence error: {e}")
             fallback_historical(df)
+            
+    with tabs[8]:  # ML Analytics
+        try:
+            from pages.ml_analytics import show
+            show(df)
+            st.success("✅ ML Analytics: Module refactorisé avec 6 sous-modules")
+        except Exception as e:
+            st.error(f"ML Analytics error: {e}")
+            fallback_ml_analytics(df)
     
     # Footer
     display_footer()
@@ -154,6 +164,10 @@ def fallback_big_board(df: pd.DataFrame):
 
 def fallback_historical(df: pd.DataFrame):
     """Fallback simple pour historical intelligence"""
+    st.warning("Mode fallback activé")
+
+def fallback_ml_analytics(df: pd.DataFrame):
+    """Fallback simple pour ml analytics"""
     st.warning("Mode fallback activé")
     
     # Tabs simplifiés
