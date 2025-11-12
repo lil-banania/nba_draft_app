@@ -1,0 +1,319 @@
+{
+  "model_version": "v3_clean",
+  "model_type": "regression",
+  "best_model": "Gradient Boosting",
+  "n_players": 60,
+  "n_features": 41,
+  "performance": {
+    "cv_mae_mean": {
+      "Random Forest": 7.193022236919464,
+      "Gradient Boosting": 5.92702523745948,
+      "Ridge Regression": 7.206361223142511,
+      "Lasso Regression": 7.213084357759497
+    },
+    "cv_mae_std": {
+      "Random Forest": 1.4251675098574363,
+      "Gradient Boosting": 1.0989253332251874,
+      "Ridge Regression": 0.3820832050254805,
+      "Lasso Regression": 0.5850502151539698
+    },
+    "test_mae": {
+      "Random Forest": 5.022982884399548,
+      "Gradient Boosting": 4.012291862393875,
+      "Ridge Regression": 6.831298414224783,
+      "Lasso Regression": 5.769918548445243
+    },
+    "test_rmse": {
+      "Random Forest": 6.277817680849866,
+      "Gradient Boosting": 5.111516578283191,
+      "Ridge Regression": 7.884830499043892,
+      "Lasso Regression": 6.733996971216203
+    },
+    "test_r2": {
+      "Random Forest": 0.8884769836485079,
+      "Gradient Boosting": 0.9260655822761908,
+      "Ridge Regression": 0.8240732689866767,
+      "Lasso Regression": 0.8716804160115891
+    },
+    "test_spearman": {
+      "Random Forest": 0.8951048951048951,
+      "Gradient Boosting": 0.9370629370629372,
+      "Ridge Regression": 0.7342657342657343,
+      "Lasso Regression": 0.8181818181818183
+    },
+    "ensemble_mae": 4.959707117076797,
+    "ensemble_rmse": 5.719478265446175,
+    "ensemble_r2": 0.9074322010186446,
+    "ensemble_spearman": 0.8951048951048951
+  },
+  "errors_analysis": {
+    "median_error": 4.278303490579773,
+    "mean_error": 4.959707117076797,
+    "max_error": 10.136557545715945,
+    "top10_accuracy": 0.9166666666666666,
+    "top5_accuracy": 0.5833333333333334
+  },
+  "tier_performance": {
+    "Lottery": {
+      "range": "1-10",
+      "mae": 6.453887335299349,
+      "n_players": 2
+    },
+    "First Round": {
+      "range": "11-30",
+      "mae": 2.308930127052607,
+      "n_players": 2
+    },
+    "Second Round": {
+      "range": "31-60",
+      "mae": 5.248856310027207,
+      "n_players": 8
+    }
+  },
+  "feature_importance": [
+    {
+      "feature": "wingspan_inches",
+      "importance": 0.2899515795703642
+    },
+    {
+      "feature": "shooting_skill_score",
+      "importance": 0.19311384109376256
+    },
+    {
+      "feature": "age_adjusted_production",
+      "importance": 0.166725969534705
+    },
+    {
+      "feature": "games_played",
+      "importance": 0.07986346658666534
+    },
+    {
+      "feature": "defensive_upside",
+      "importance": 0.05236977745883298
+    },
+    {
+      "feature": "young_prospect_bonus",
+      "importance": 0.0422847147594713
+    },
+    {
+      "feature": "yang_hansen_penalty",
+      "importance": 0.03850913050487191
+    },
+    {
+      "feature": "skill_composite",
+      "importance": 0.02898602124097506
+    },
+    {
+      "feature": "age",
+      "importance": 0.014242031834398634
+    },
+    {
+      "feature": "team_pace",
+      "importance": 0.006191830270953387
+    },
+    {
+      "feature": "turnovers",
+      "importance": 0.00542149494078186
+    },
+    {
+      "feature": "fta",
+      "importance": 0.004977228895449327
+    },
+    {
+      "feature": "ppg_vs_position",
+      "importance": 0.004865639471500896
+    },
+    {
+      "feature": "pace_adjusted_ppg",
+      "importance": 0.004658614452332732
+    },
+    {
+      "feature": "production_volume",
+      "importance": 0.004515216423588444
+    },
+    {
+      "feature": "efficiency_ratio",
+      "importance": 0.004183294694346009
+    },
+    {
+      "feature": "playmaking_ratio",
+      "importance": 0.004156196065724228
+    },
+    {
+      "feature": "ts_vs_position",
+      "importance": 0.003964777619109618
+    },
+    {
+      "feature": "minutes",
+      "importance": 0.0038761358179580678
+    },
+    {
+      "feature": "fg_pct",
+      "importance": 0.0038568365532626416
+    },
+    {
+      "feature": "two_way_impact",
+      "importance": 0.0038071354278396566
+    },
+    {
+      "feature": "scoring_efficiency",
+      "importance": 0.0037652803480948053
+    },
+    {
+      "feature": "ppg",
+      "importance": 0.003684517476714315
+    },
+    {
+      "feature": "three_pt_pct",
+      "importance": 0.0035929600448222237
+    },
+    {
+      "feature": "rpg",
+      "importance": 0.0035512552140903654
+    },
+    {
+      "feature": "fga",
+      "importance": 0.0033618742717459542
+    },
+    {
+      "feature": "ts_pct",
+      "importance": 0.0033259030858042763
+    },
+    {
+      "feature": "ft_pct",
+      "importance": 0.002642747814880211
+    },
+    {
+      "feature": "usage_rate_calculated",
+      "importance": 0.0026260519265329085
+    },
+    {
+      "feature": "apg",
+      "importance": 0.002592902508892047
+    },
+    {
+      "feature": "bpg",
+      "importance": 0.002258257389092069
+    },
+    {
+      "feature": "weight",
+      "importance": 0.001595367205932332
+    },
+    {
+      "feature": "minutes_efficiency",
+      "importance": 0.001521402133000575
+    },
+    {
+      "feature": "spg",
+      "importance": 0.0011665179968725736
+    },
+    {
+      "feature": "wingspan_advantage",
+      "importance": 0.0011611697071047511
+    },
+    {
+      "feature": "youth_bonus",
+      "importance": 0.001041245393518757
+    },
+    {
+      "feature": "height_inches",
+      "importance": 0.0006162584895221803
+    },
+    {
+      "feature": "low_production_malus",
+      "importance": 0.0004773364738446867
+    },
+    {
+      "feature": "bbiq_score",
+      "importance": 0.0002481813248267693
+    },
+    {
+      "feature": "athleticism_score",
+      "importance": 0.0002066863264705548
+    },
+    {
+      "feature": "leadership_score",
+      "importance": 4.315165134381856e-05
+    }
+  ],
+  "weights": {
+    "Random Forest": 0.23758809969757874,
+    "Gradient Boosting": 0.2883362928086074,
+    "Ridge Regression": 0.23714832374262823,
+    "Lasso Regression": 0.23692728375118557
+  },
+  "predictions": [
+    {
+      "name": "Cooper Flagg",
+      "draft_rank": 1,
+      "predicted_rank": 5.767385963423749,
+      "error": 4.767385963423749
+    },
+    {
+      "name": "VJ Edgecombe",
+      "draft_rank": 4,
+      "predicted_rank": 12.14038870717495,
+      "error": 8.14038870717495
+    },
+    {
+      "name": "Kam Jones",
+      "draft_rank": 38,
+      "predicted_rank": 45.3618957256831,
+      "error": 7.361895725683098
+    },
+    {
+      "name": "Hunter Sallis",
+      "draft_rank": 45,
+      "predicted_rank": 34.863442454284055,
+      "error": 10.136557545715945
+    },
+    {
+      "name": "Liam McNeeley",
+      "draft_rank": 15,
+      "predicted_rank": 16.273534071960245,
+      "error": 1.2735340719602455
+    },
+    {
+      "name": "John Tonje",
+      "draft_rank": 51,
+      "predicted_rank": 52.60080116296298,
+      "error": 1.6008011629629806
+    },
+    {
+      "name": "Jamir Watkins",
+      "draft_rank": 36,
+      "predicted_rank": 39.7892210177358,
+      "error": 3.789221017735798
+    },
+    {
+      "name": "Rocco Zikarsky",
+      "draft_rank": 48,
+      "predicted_rank": 49.70575485863337,
+      "error": 1.7057548586333695
+    },
+    {
+      "name": "Asa Newell",
+      "draft_rank": 11,
+      "predicted_rank": 14.344326182144968,
+      "error": 3.344326182144968
+    },
+    {
+      "name": "Mouhamed Faye",
+      "draft_rank": 55,
+      "predicted_rank": 47.52561277283694,
+      "error": 7.4743872271630565
+    },
+    {
+      "name": "Ryan Kalkbrenner",
+      "draft_rank": 32,
+      "predicted_rank": 39.0681749059861,
+      "error": 7.068174905986098
+    },
+    {
+      "name": "Mark Sears",
+      "draft_rank": 52,
+      "predicted_rank": 49.145941963662686,
+      "error": 2.854058036337314
+    }
+  ]
+}
