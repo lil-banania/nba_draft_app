@@ -1,584 +1,370 @@
+# pages/ml_analytics.py
+"""Page ML Analytics - Chargement depuis models/"""
+
 import streamlit as st
 import pandas as pd
-import json
-import plotly.graph_objects as go
 import plotly.express as px
+import plotly.graph_objects as go
+import json
+import numpy as np
 from pathlib import Path
 
-st.set_page_config(page_title="Résultats ML - NBA Draft 2025", page_icon="🤖", layout="wide")
-
-# Titre
-st.title("🤖 Résultats du Modèle ML - NBA Draft 2025")
-st.markdown("---")
-
-# Charger les résultats
-@st.cache_data
-def load_results():
-    """Charge les résultats du modèle"""
-    try:
-        with open('nba_draft_results.json', 'r') as f:
-            results = json.load(f)
-        return results
-    except FileNotFoundError:
+def show(df: pd.DataFrame):
+    """Display ML analytics page"""
+    st.markdown("## 🤖 ML Model Analytics")
+    st.caption("Regression Model Performance - Clean (No Data Leakage)")
+    
+    # Load model results
+    results = load_model_results()
+    predictions = load_predictions()
+    features = load_features()
+    
+    if results:
+        st.success("✅ **Model v3 (Clean)**: Regression model trained on observable data only")
+        
+        # Core performance metrics
+        display_performance_overview(results)
+        
+        # Performance details
+        display_model_comparison(results)
+        
+        # Predictions analysis
+        if predictions is not None:
+            display_predictions_analysis(predictions, results)
+        
+        # Feature importance
+        if results.get('feature_importance'):
+            display_feature_importance(results['feature_importance'])
+        
+        # Model info
+        display_model_info(results, features)
+    else:
         st.error("❌ Fichier de résultats introuvable. Exécutez d'abord le modèle.")
+        st.info("""
+        Pour générer les résultats:
+        1. Exécutez `python model_v3.py`
+        2. Vérifiez que les fichiers sont dans `models/`
+        3. Rafraîchissez cette page
+        """)
+
+@st.cache_data
+def load_model_results():
+    """Load model results from JSON"""
+    try:
+        # Essayer models/
+        path = Path('models/nba_draft_results.json')
+        if path.exists():
+            with open(path, 'r') as f:
+                return json.load(f)
+        
+        # Essayer racine
+        path = Path('nba_draft_results.json')
+        if path.exists():
+            with open(path, 'r') as f:
+                return json.load(f)
+        
+        return None
+    except Exception as e:
+        st.error(f"Erreur de chargement: {e}")
         return None
 
 @st.cache_data
 def load_predictions():
-    """Charge les prédictions complètes"""
+    """Load predictions CSV"""
     try:
-        df = pd.read_csv('nba_draft_predictions.csv')
-        return df
-    except FileNotFoundError:
-        st.warning("⚠️ Fichier de prédictions introuvable.")
+        # Essayer models/
+        path = Path('models/nba_draft_predictions.csv')
+        if path.exists():
+            return pd.read_csv(path)
+        
+        # Essayer racine
+        path = Path('nba_draft_predictions.csv')
+        if path.exists():
+            return pd.read_csv(path)
+        
+        return None
+    except Exception as e:
+        st.warning(f"⚠️ Fichier de prédictions introuvable: {e}")
         return None
 
 @st.cache_data
 def load_features():
-    """Charge la liste des features"""
+    """Load features list"""
     try:
-        with open('nba_draft_features.json', 'r') as f:
-            features = json.load(f)
-        return features
-    except FileNotFoundError:
+        # Essayer models/
+        path = Path('models/nba_draft_features.json')
+        if path.exists():
+            with open(path, 'r') as f:
+                return json.load(f)
+        
+        # Essayer racine
+        path = Path('nba_draft_features.json')
+        if path.exists():
+            with open(path, 'r') as f:
+                return json.load(f)
+        
+        return None
+    except Exception as e:
         return None
 
-# Charger les données
-results = load_results()
-predictions = load_predictions()
-features_data = load_features()
-
-if results is None:
-    st.stop()
-
-# Sidebar - Informations du modèle
-with st.sidebar:
-    st.header("ℹ️ Informations")
-    st.metric("Version", results['model_version'])
-    st.metric("Type", results['model_type'].capitalize())
-    st.metric("Meilleur modèle", results['best_model'])
-    st.metric("Joueurs analysés", results['n_players'])
-    st.metric("Features utilisées", results['n_features'])
-    
-    st.markdown("---")
-    st.markdown("### 🎯 Objectif")
-    st.markdown("""
-    Ce modèle prédit le **draft rank** (position 1-60) de chaque joueur 
-    en se basant uniquement sur des **données observables** :
-    - Stats college
-    - Évaluations scouting
-    - Mesures physiques
-    - Feature engineering
-    """)
-
-# Onglets principaux
-tab1, tab2, tab3, tab4, tab5 = st.tabs([
-    "📊 Vue d'ensemble",
-    "🎯 Performance",
-    "📈 Prédictions",
-    "🔍 Feature Importance",
-    "📋 Données détaillées"
-])
-
-# TAB 1: VUE D'ENSEMBLE
-with tab1:
-    st.header("📊 Vue d'ensemble des résultats")
-    
-    col1, col2, col3, col4 = st.columns(4)
+def display_performance_overview(results):
+    """Display key performance metrics"""
+    st.markdown("### 📊 Performance Overview")
     
     perf = results['performance']
-    errors = results['errors_analysis']
+    
+    col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         st.metric(
             "MAE Ensemble",
             f"{perf['ensemble_mae']:.2f} picks",
-            help="Mean Absolute Error - Erreur moyenne de prédiction"
+            help="Mean Absolute Error"
         )
     
     with col2:
         st.metric(
             "RMSE",
             f"{perf['ensemble_rmse']:.2f} picks",
-            help="Root Mean Squared Error - Pénalise les grosses erreurs"
+            help="Root Mean Squared Error"
         )
     
     with col3:
         st.metric(
             "R²",
             f"{perf['ensemble_r2']:.3f}",
-            help="Coefficient de détermination - Part de variance expliquée"
+            help="Coefficient of determination"
         )
     
     with col4:
         st.metric(
             "Spearman",
             f"{perf['ensemble_spearman']:.3f}",
-            help="Corrélation de rang - Mesure la qualité du ranking"
+            help="Rank correlation"
         )
     
-    st.markdown("---")
-    
-    # Interprétation
-    st.subheader("💡 Interprétation")
-    
+    # Interpretation
     mae = perf['ensemble_mae']
     spearman = perf['ensemble_spearman']
     
-    # Verdict basé sur MAE
     if mae < 5:
-        verdict_color = "green"
-        verdict_text = "🟢 EXCELLENT"
-        verdict_detail = "Prédictions très précises!"
+        verdict = "🟢 EXCELLENT"
     elif mae < 8:
-        verdict_color = "blue"
-        verdict_text = "🟡 BON"
-        verdict_detail = "Prédictions fiables"
-    elif mae < 12:
-        verdict_color = "orange"
-        verdict_text = "🟠 CORRECT"
-        verdict_detail = "Prédictions acceptables"
+        verdict = "🟡 BON"
     else:
-        verdict_color = "red"
-        verdict_text = "🔴 FAIBLE"
-        verdict_detail = "Modèle à améliorer"
+        verdict = "🟠 CORRECT"
     
-    col1, col2 = st.columns(2)
+    st.success(f"{verdict} - Erreur moyenne de {mae:.1f} picks")
     
-    with col1:
-        st.markdown(f"### Performance globale: {verdict_text}")
-        st.markdown(f"*{verdict_detail}*")
-        st.markdown(f"""
-        - **Erreur moyenne:** {mae:.1f} picks
-        - **Erreur médiane:** {errors['median_error']:.1f} picks
-        - **Erreur max:** {errors['max_error']:.1f} picks
-        """)
-    
-    with col2:
-        # Verdict basé sur Spearman
-        if spearman > 0.7:
-            st.success(f"✅ **Excellente corrélation de rang** (Spearman = {spearman:.3f})")
-            st.markdown("Le modèle range très bien les joueurs, même si les valeurs exactes ont une marge d'erreur.")
-        elif spearman > 0.5:
-            st.info(f"✅ **Bonne corrélation de rang** (Spearman = {spearman:.3f})")
-        else:
-            st.warning(f"⚠️ **Corrélation de rang modérée** (Spearman = {spearman:.3f})")
-    
-    st.markdown("---")
-    
-    # Précision par tier
-    st.subheader("🎯 Précision par tier de draft")
-    
-    tier_data = results['tier_performance']
-    
-    if tier_data:
-        cols = st.columns(len(tier_data))
-        
-        for idx, (tier_name, tier_info) in enumerate(tier_data.items()):
-            with cols[idx]:
-                st.metric(
-                    f"{tier_name}",
-                    f"{tier_info['mae']:.2f} picks",
-                    delta=None,
-                    help=f"Picks {tier_info['range']} ({tier_info['n_players']} joueurs)"
-                )
-        
-        st.markdown("""
-        **Note:** Il est normal que les lottery picks (1-10) soient plus difficiles à prédire 
-        car ils dépendent fortement des besoins des équipes et du talent "upside" difficile à quantifier.
-        """)
+    if spearman > 0.7:
+        st.success(f"✅ Excellente corrélation de rang (Spearman = {spearman:.3f})")
 
-# TAB 2: PERFORMANCE
-with tab2:
-    st.header("🎯 Performance des modèles")
+def display_model_comparison(results):
+    """Display comparison between models"""
+    st.markdown("### 🎯 Comparaison des modèles")
     
-    # Comparaison des modèles
-    st.subheader("📊 Comparaison des modèles individuels")
+    perf = results['performance']
     
-    model_names = list(perf['cv_mae_mean'].keys())
+    # Create comparison dataframe
+    models = list(perf['test_mae'].keys())
     
     comparison_data = {
-        'Modèle': model_names,
-        'CV MAE': [perf['cv_mae_mean'][name] for name in model_names],
-        'CV Std': [perf['cv_mae_std'][name] for name in model_names],
-        'Test MAE': [perf['test_mae'][name] for name in model_names],
-        'Test RMSE': [perf['test_rmse'][name] for name in model_names],
-        'R²': [perf['test_r2'][name] for name in model_names],
-        'Spearman': [perf['test_spearman'][name] for name in model_names],
+        'Modèle': models,
+        'CV MAE': [perf['cv_mae_mean'][m] for m in models],
+        'Test MAE': [perf['test_mae'][m] for m in models],
+        'Test R²': [perf['test_r2'][m] for m in models],
+        'Spearman': [perf['test_spearman'][m] for m in models]
     }
     
-    df_comparison = pd.DataFrame(comparison_data)
+    df_comp = pd.DataFrame(comparison_data)
     
-    # Styliser le DataFrame
+    # Display table
     st.dataframe(
-        df_comparison.style.format({
+        df_comp.style.format({
             'CV MAE': '{:.2f}',
-            'CV Std': '{:.2f}',
             'Test MAE': '{:.2f}',
-            'Test RMSE': '{:.2f}',
-            'R²': '{:.3f}',
-            'Spearman': '{:.3f}',
+            'Test R²': '{:.3f}',
+            'Spearman': '{:.3f}'
         }).background_gradient(subset=['Test MAE'], cmap='RdYlGn_r'),
-        use_container_width=True
+        use_container_width=True,
+        hide_index=True
     )
     
-    st.markdown("---")
+    # Chart
+    fig = go.Figure()
     
-    # Visualisation des performances
-    col1, col2 = st.columns(2)
+    fig.add_trace(go.Bar(
+        x=models,
+        y=[perf['test_mae'][m] for m in models],
+        name='Test MAE',
+        marker_color='lightblue'
+    ))
     
-    with col1:
-        # Graphique MAE par modèle
-        fig_mae = go.Figure()
-        
-        fig_mae.add_trace(go.Bar(
-            x=model_names,
-            y=[perf['cv_mae_mean'][name] for name in model_names],
-            name='CV MAE',
-            marker_color='lightblue',
-            error_y=dict(
-                type='data',
-                array=[perf['cv_mae_std'][name] for name in model_names]
-            )
-        ))
-        
-        fig_mae.add_trace(go.Bar(
-            x=model_names,
-            y=[perf['test_mae'][name] for name in model_names],
-            name='Test MAE',
-            marker_color='darkblue'
-        ))
-        
-        fig_mae.update_layout(
-            title="MAE par modèle",
-            xaxis_title="Modèle",
-            yaxis_title="MAE (picks)",
-            barmode='group',
-            height=400
-        )
-        
-        st.plotly_chart(fig_mae, use_container_width=True)
-    
-    with col2:
-        # Graphique Spearman par modèle
-        fig_spearman = go.Figure()
-        
-        fig_spearman.add_trace(go.Bar(
-            x=model_names,
-            y=[perf['test_spearman'][name] for name in model_names],
-            marker_color=['green' if s > 0.7 else 'orange' for s in [perf['test_spearman'][name] for name in model_names]]
-        ))
-        
-        fig_spearman.add_hline(y=0.7, line_dash="dash", line_color="red", 
-                               annotation_text="Seuil excellent (0.7)")
-        
-        fig_spearman.update_layout(
-            title="Corrélation Spearman par modèle",
-            xaxis_title="Modèle",
-            yaxis_title="Spearman",
-            height=400
-        )
-        
-        st.plotly_chart(fig_spearman, use_container_width=True)
-    
-    st.markdown("---")
-    
-    # Poids de l'ensemble
-    st.subheader("⚖️ Poids des modèles dans l'ensemble")
-    
-    weights = results['weights']
-    
-    fig_weights = go.Figure(data=[
-        go.Pie(
-            labels=list(weights.keys()),
-            values=list(weights.values()),
-            hole=0.3,
-            textinfo='label+percent',
-            marker=dict(colors=['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'])
-        )
-    ])
-    
-    fig_weights.update_layout(
-        title="Contribution de chaque modèle à la prédiction finale",
+    fig.update_layout(
+        title='MAE par modèle (Test Set)',
+        xaxis_title='Modèle',
+        yaxis_title='MAE (picks)',
         height=400
     )
     
-    st.plotly_chart(fig_weights, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
     
-    st.info("""
-    **ℹ️ Note:** Les poids sont calculés en fonction des performances en validation croisée. 
-    Les modèles les plus performants ont un poids plus élevé dans la prédiction finale.
-    """)
+    # Best model
+    best = results['best_model']
+    st.info(f"🏆 Meilleur modèle: **{best}**")
 
-# TAB 3: PRÉDICTIONS
-with tab3:
-    st.header("📈 Analyse des prédictions")
+def display_predictions_analysis(predictions, results):
+    """Display predictions analysis"""
+    st.markdown("### 📈 Analyse des prédictions")
     
-    if predictions is not None:
-        # Statistiques sur les erreurs
-        st.subheader("📊 Distribution des erreurs")
-        
-        col1, col2, col3, col4 = st.columns(4)
-        
-        with col1:
-            st.metric("Erreur médiane", f"{errors['median_error']:.2f} picks")
-        with col2:
-            st.metric("Erreur moyenne", f"{errors['mean_error']:.2f} picks")
-        with col3:
-            st.metric("Top 10 accuracy", f"{errors['top10_accuracy']*100:.1f}%")
-        with col4:
-            st.metric("Top 5 accuracy", f"{errors['top5_accuracy']*100:.1f}%")
-        
-        # Graphique scatter: Prédit vs Réel
-        st.subheader("🎯 Prédictions vs Réalité")
-        
-        fig_scatter = go.Figure()
-        
-        # Ligne parfaite (y=x)
-        fig_scatter.add_trace(go.Scatter(
-            x=[1, 60],
-            y=[1, 60],
-            mode='lines',
-            name='Prédiction parfaite',
-            line=dict(color='red', dash='dash')
-        ))
-        
-        # Prédictions
-        fig_scatter.add_trace(go.Scatter(
-            x=predictions['draft_rank'],
-            y=predictions['predicted_rank_ensemble'],
-            mode='markers',
-            name='Prédictions',
-            marker=dict(
-                size=8,
-                color=predictions['prediction_error'],
-                colorscale='Viridis',
-                showscale=True,
-                colorbar=dict(title="Erreur"),
-                line=dict(width=1, color='white')
-            ),
-            text=predictions['name'] if 'name' in predictions.columns else None,
-            hovertemplate='<b>%{text}</b><br>Réel: %{x}<br>Prédit: %{y:.1f}<br>Erreur: %{marker.color:.1f}<extra></extra>'
-        ))
-        
-        fig_scatter.update_layout(
-            title="Prédictions vs Draft Rank réel",
-            xaxis_title="Draft Rank réel",
-            yaxis_title="Draft Rank prédit",
-            height=600,
-            hovermode='closest'
-        )
-        
-        st.plotly_chart(fig_scatter, use_container_width=True)
-        
-        # Histogramme des erreurs
-        st.subheader("📊 Distribution des erreurs de prédiction")
-        
-        fig_hist = go.Figure()
-        
-        fig_hist.add_trace(go.Histogram(
-            x=predictions['prediction_error'],
-            nbinsx=20,
-            marker_color='lightblue',
-            marker_line_color='darkblue',
-            marker_line_width=1
-        ))
-        
-        fig_hist.update_layout(
-            title="Fréquence des erreurs",
-            xaxis_title="Erreur absolue (picks)",
-            yaxis_title="Nombre de joueurs",
-            height=400
-        )
-        
-        st.plotly_chart(fig_hist, use_container_width=True)
-        
-        # Meilleures et pires prédictions
-        st.markdown("---")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.subheader("✅ Top 5 meilleures prédictions")
-            best_preds = predictions.nsmallest(5, 'prediction_error')
-            
-            for idx, row in best_preds.iterrows():
-                with st.container():
-                    st.markdown(f"""
-                    **{row.get('name', f"Joueur #{idx}")}**  
-                    Réel: `{row['draft_rank']:.0f}` | Prédit: `{row['predicted_rank_ensemble']:.1f}` | Erreur: `{row['prediction_error']:.1f}`
-                    """)
-        
-        with col2:
-            st.subheader("❌ Top 5 pires prédictions")
-            worst_preds = predictions.nlargest(5, 'prediction_error')
-            
-            for idx, row in worst_preds.iterrows():
-                with st.container():
-                    st.markdown(f"""
-                    **{row.get('name', f"Joueur #{idx}")}**  
-                    Réel: `{row['draft_rank']:.0f}` | Prédit: `{row['predicted_rank_ensemble']:.1f}` | Erreur: `{row['prediction_error']:.1f}`
-                    """)
+    errors = results['errors_analysis']
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.metric("Erreur médiane", f"{errors['median_error']:.2f} picks")
+    with col2:
+        st.metric("Erreur max", f"{errors['max_error']:.2f} picks")
+    with col3:
+        st.metric("Top 5 accuracy", f"{errors['top5_accuracy']*100:.1f}%")
+    
+    # Scatter plot
+    st.markdown("#### Prédictions vs Réalité")
+    
+    fig = go.Figure()
+    
+    # Perfect line
+    fig.add_trace(go.Scatter(
+        x=[1, 60],
+        y=[1, 60],
+        mode='lines',
+        name='Prédiction parfaite',
+        line=dict(color='red', dash='dash')
+    ))
+    
+    # Predictions
+    fig.add_trace(go.Scatter(
+        x=predictions['draft_rank'],
+        y=predictions['predicted_rank_ensemble'],
+        mode='markers',
+        name='Prédictions',
+        marker=dict(
+            size=8,
+            color=predictions['prediction_error'],
+            colorscale='Viridis',
+            showscale=True,
+            colorbar=dict(title="Erreur")
+        ),
+        text=predictions['name'] if 'name' in predictions.columns else None,
+        hovertemplate='<b>%{text}</b><br>Réel: %{x}<br>Prédit: %{y:.1f}<extra></extra>'
+    ))
+    
+    fig.update_layout(
+        xaxis_title="Draft Rank réel",
+        yaxis_title="Draft Rank prédit",
+        height=500,
+        hovermode='closest'
+    )
+    
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # Top/Worst predictions
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("#### ✅ Top 5 meilleures")
+        best = predictions.nsmallest(5, 'prediction_error')
+        for _, row in best.iterrows():
+            st.text(f"{row.get('name', 'N/A')}: {row['prediction_error']:.1f}")
+    
+    with col2:
+        st.markdown("#### ❌ Top 5 pires")
+        worst = predictions.nlargest(5, 'prediction_error')
+        for _, row in worst.iterrows():
+            st.text(f"{row.get('name', 'N/A')}: {row['prediction_error']:.1f}")
 
-# TAB 4: FEATURE IMPORTANCE
-with tab4:
-    st.header("🔍 Importance des features")
+def display_feature_importance(feature_importance):
+    """Display feature importance"""
+    st.markdown("### 🔍 Importance des features")
     
-    feature_imp = pd.DataFrame(results['feature_importance'])
+    # Convert to dataframe
+    df_imp = pd.DataFrame(feature_importance)
     
-    st.subheader("🏆 Top 20 features les plus importantes")
+    # Top 15
+    top15 = df_imp.head(15)
     
-    # Graphique horizontal
-    top_features = feature_imp.head(20)
-    
-    fig_importance = go.Figure(go.Bar(
-        x=top_features['importance'],
-        y=top_features['feature'],
+    fig = go.Figure(go.Bar(
+        x=top15['importance'],
+        y=top15['feature'],
         orientation='h',
         marker=dict(
-            color=top_features['importance'],
-            colorscale='Blues',
-            showscale=False
+            color=top15['importance'],
+            colorscale='Blues'
         )
     ))
     
-    fig_importance.update_layout(
-        title="Contribution de chaque feature au modèle",
-        xaxis_title="Importance",
-        yaxis_title="Feature",
+    fig.update_layout(
+        title='Top 15 features les plus importantes',
+        xaxis_title='Importance',
+        yaxis_title='Feature',
         height=600,
         yaxis=dict(autorange="reversed")
     )
     
-    st.plotly_chart(fig_importance, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True)
     
-    # Analyse de la distribution
-    st.markdown("---")
-    st.subheader("📊 Distribution de l'importance")
+    # Check dominance
+    top_importance = df_imp.iloc[0]['importance']
+    top_feature = df_imp.iloc[0]['feature']
+    
+    if top_importance > 0.5:
+        st.error(f"⚠️ Feature ultra-dominante: **{top_feature}** ({top_importance:.1%})")
+    elif top_importance > 0.3:
+        st.warning(f"⚠️ Feature très dominante: **{top_feature}** ({top_importance:.1%})")
+    else:
+        st.success(f"✅ Distribution équilibrée (top feature: {top_importance:.1%})")
+
+def display_model_info(results, features):
+    """Display model information"""
+    st.markdown("### ℹ️ Informations du modèle")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        st.metric("Top feature", feature_imp.iloc[0]['feature'])
-        st.metric("Importance", f"{feature_imp.iloc[0]['importance']:.1%}")
-        
-        # Vérifier si dominante
-        if feature_imp.iloc[0]['importance'] > 0.5:
-            st.error("⚠️ Feature ultra-dominante (>50%) - Risque de surapprentissage")
-        elif feature_imp.iloc[0]['importance'] > 0.3:
-            st.warning("⚠️ Feature très dominante (>30%)")
-        else:
-            st.success("✅ Distribution équilibrée")
+        st.markdown("**Configuration**")
+        st.text(f"Version: {results['model_version']}")
+        st.text(f"Type: {results['model_type']}")
+        st.text(f"Joueurs: {results['n_players']}")
+        st.text(f"Features: {results['n_features']}")
     
     with col2:
-        # Top 3 features cumulées
-        top3_cumul = feature_imp.head(3)['importance'].sum()
-        st.metric("Top 3 features (cumulé)", f"{top3_cumul:.1%}")
-        
-        # Top 10 cumulé
-        top10_cumul = feature_imp.head(10)['importance'].sum()
-        st.metric("Top 10 features (cumulé)", f"{top10_cumul:.1%}")
+        st.markdown("**Ensemble**")
+        weights = results['weights']
+        for model, weight in weights.items():
+            st.text(f"{model}: {weight:.1%}")
     
-    # Table complète
-    st.markdown("---")
-    st.subheader("📋 Table complète des features")
-    
-    st.dataframe(
-        feature_imp.style.format({'importance': '{:.4f}'})
-        .background_gradient(subset=['importance'], cmap='Blues'),
-        use_container_width=True,
-        height=400
-    )
-
-# TAB 5: DONNÉES DÉTAILLÉES
-with tab5:
-    st.header("📋 Données détaillées")
-    
-    if predictions is not None:
-        st.subheader("🎯 Prédictions complètes")
+    # Tier performance
+    if 'tier_performance' in results:
+        st.markdown("#### Performance par tier")
         
-        # Options de filtrage
-        col1, col2, col3 = st.columns(3)
+        tiers = results['tier_performance']
+        tier_data = []
+        for tier_name, tier_info in tiers.items():
+            tier_data.append({
+                'Tier': tier_name,
+                'Range': tier_info['range'],
+                'MAE': tier_info['mae'],
+                'Joueurs': tier_info['n_players']
+            })
         
-        with col1:
-            tier_filter = st.selectbox(
-                "Filtrer par tier",
-                ["Tous", "Lottery (1-10)", "First Round (11-30)", "Second Round (31-60)"]
-            )
-        
-        with col2:
-            error_threshold = st.slider(
-                "Erreur max (picks)",
-                0, int(predictions['prediction_error'].max()) + 1,
-                int(predictions['prediction_error'].max()) + 1
-            )
-        
-        with col3:
-            sort_by = st.selectbox(
-                "Trier par",
-                ["Draft Rank", "Erreur (décroissant)", "Erreur (croissant)"]
-            )
-        
-        # Appliquer les filtres
-        filtered_df = predictions.copy()
-        
-        if tier_filter == "Lottery (1-10)":
-            filtered_df = filtered_df[filtered_df['draft_rank'] <= 10]
-        elif tier_filter == "First Round (11-30)":
-            filtered_df = filtered_df[(filtered_df['draft_rank'] >= 11) & (filtered_df['draft_rank'] <= 30)]
-        elif tier_filter == "Second Round (31-60)":
-            filtered_df = filtered_df[filtered_df['draft_rank'] >= 31]
-        
-        filtered_df = filtered_df[filtered_df['prediction_error'] <= error_threshold]
-        
-        if sort_by == "Draft Rank":
-            filtered_df = filtered_df.sort_values('draft_rank')
-        elif sort_by == "Erreur (décroissant)":
-            filtered_df = filtered_df.sort_values('prediction_error', ascending=False)
-        else:
-            filtered_df = filtered_df.sort_values('prediction_error')
-        
+        df_tiers = pd.DataFrame(tier_data)
         st.dataframe(
-            filtered_df.style.format({
-                'draft_rank': '{:.0f}',
-                'predicted_rank_ensemble': '{:.1f}',
-                'prediction_error': '{:.1f}'
-            }).background_gradient(subset=['prediction_error'], cmap='RdYlGn_r'),
+            df_tiers.style.format({'MAE': '{:.2f}'}),
             use_container_width=True,
-            height=600
+            hide_index=True
         )
-        
-        # Téléchargement
-        st.download_button(
-            label="📥 Télécharger les prédictions (CSV)",
-            data=filtered_df.to_csv(index=False).encode('utf-8'),
-            file_name='nba_draft_predictions_filtered.csv',
-            mime='text/csv'
-        )
-    
-    # Liste des features utilisées
-    if features_data:
-        st.markdown("---")
-        st.subheader("📝 Features utilisées dans le modèle")
-        
-        st.info(f"**{features_data['n_features']} features** au total")
-        
-        # Afficher en colonnes
-        n_cols = 3
-        cols = st.columns(n_cols)
-        
-        for idx, feature in enumerate(features_data['features']):
-            with cols[idx % n_cols]:
-                st.markdown(f"• `{feature}`")
 
-# Footer
-st.markdown("---")
-st.markdown("""
-<div style='text-align: center'>
-    <p>🏀 NBA Draft 2025 - Modèle de Machine Learning v3 (Clean)</p>
-    <p style='font-size: 0.8em; color: gray;'>
-        Basé uniquement sur des données observables • Sans data leakage • 
-        Features: Stats college + Scouting + Physique + Feature Engineering
-    </p>
-</div>
-""", unsafe_allow_html=True)
+# Fonction principale appelée depuis app.py
+if __name__ == "__main__":
+    # Pour tests
+    show(None)
